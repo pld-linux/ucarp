@@ -1,5 +1,5 @@
 Summary:	Common Address Redundancy Protocol (CARP) for Unix
-Summary(pl.UTF-8):   CARP (Common Address Redundancy Protocol) dla Uniksa
+Summary(pl.UTF-8):	CARP (Common Address Redundancy Protocol) dla Uniksa
 Name:		ucarp
 Version:	1.1
 Release:	0.1
