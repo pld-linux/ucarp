@@ -1,5 +1,5 @@
 Summary:	Common Address Redundancy Protocol (CARP) for Unix
-Summary(pl):	CARP (Common Address Redundancy Protocol) dla Uniksa
+Summary(pl.UTF-8):   CARP (Common Address Redundancy Protocol) dla Uniksa
 Name:		ucarp
 Version:	1.1
 Release:	0.1
@@ -23,17 +23,17 @@ cryptographically signed messages, interoperability between different
 operating systems and no need for any dedicated extra network link
 between redundant hosts.
 
-%description -l pl
-UCARP pozwala kilku hostom na dzielenie wsp髄nych wirtualnych adres體
+%description -l pl.UTF-8
+UCARP pozwala kilku hostom na dzielenie wsp贸lnych wirtualnych adres贸w
 IP w celu automatycznego przejmowania w przypadku awarii. Jest to
-przeno秐a implementacja w przestrzeni u縴tkownika bezpiecznego i
-wolnego od patent體 protoko硊 CARP (Common Address Redundancy Protocol
+przeno艣na implementacja w przestrzeni u偶ytkownika bezpiecznego i
+wolnego od patent贸w protoko艂u CARP (Common Address Redundancy Protocol
 - alternatywy OpenBSD dla VRRP).
 
-Silne punkty protoko硊 CARP to: bardzo ma硑 narzut, kryptograficznie
-podpisywanie komunikaty, wsp蟪dzia砤nie mi阣zy r罂nymi systemami
-operacyjnymi i brak potrzeby dedykowanego dodatkowego po潮czenia
-sieciowego mi阣zy nadmiarowymi hostami.
+Silne punkty protoko艂u CARP to: bardzo ma艂y narzut, kryptograficznie
+podpisywanie komunikaty, wsp贸艂dzia艂anie mi臋dzy r贸偶nymi systemami
+operacyjnymi i brak potrzeby dedykowanego dodatkowego po艂膮czenia
+sieciowego mi臋dzy nadmiarowymi hostami.
 
 %prep
 %setup -q 
