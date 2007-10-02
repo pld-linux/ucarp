@@ -1,0 +1,11 @@
+--- ucarp-1.1.orig/po/Makefile.in.in	2007-10-02 19:13:06.209809229 +0200
++++ ucarp-1.1/po/Makefile.in.in	2007-10-02 19:17:42.751445339 +0200
+@@ -26,7 +26,7 @@
+ 
+ INSTALL = @INSTALL@
+ INSTALL_DATA = @INSTALL_DATA@
+-MKINSTALLDIRS = @MKINSTALLDIRS@
++MKINSTALLDIRS = @top_srcdir@/mkinstalldirs
+ mkinstalldirs = $(SHELL) $(MKINSTALLDIRS)
+ 
+ GMSGFMT = @GMSGFMT@
