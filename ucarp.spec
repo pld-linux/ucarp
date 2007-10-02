@@ -8,6 +8,7 @@ Group:		Applications/Networking
 Source0:	ftp://ftp.ucarp.org/pub/ucarp/%{name}-%{version}.tar.gz
 # Source0-md5:	59122fd8efd49ac18c5da60e08e93493
 URL:		http://www.ucarp.org/
+Patch:		%{name}-Makefile.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -37,6 +38,7 @@ sieciowego między nadmiarowymi hostami.
 
 %prep
 %setup -q 
+%patch0 -p1
 
 %build
 %{__aclocal}
