@@ -7,8 +7,8 @@ License:	BSD
 Group:		Applications/Networking
 Source0:	ftp://ftp.ucarp.org/pub/ucarp/%{name}-%{version}.tar.gz
 # Source0-md5:	59122fd8efd49ac18c5da60e08e93493
-URL:		http://www.ucarp.org/
 Patch0:		%{name}-Makefile.patch
+URL:		http://www.ucarp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
