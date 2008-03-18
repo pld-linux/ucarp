@@ -7,7 +7,7 @@ License:	BSD
 Group:		Applications/Networking
 Source0:	ftp://ftp.ucarp.org/pub/ucarp/%{name}-%{version}.tar.gz
 # Source0-md5:	e47ddbbfa3d35ffb61a8e5fec93d4856
-Patch0:		%{name}-Makefile.patch
+Patch0:		%{name}-1.4-yandex-multicast-handlers.patch
 URL:		http://www.ucarp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -38,7 +38,7 @@ sieciowego między nadmiarowymi hostami.
 
 %prep
 %setup -q 
-#%patch0 -p1
+%patch0 -p1
 
 %build
 %{__aclocal}
