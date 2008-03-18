@@ -1,0 +1,131 @@
+diff -ru --new-file ucarp-1.4-vanilla/src/carp.c ucarp-1.4-handlers/src/carp.c
+--- ucarp-1.4-vanilla/src/carp.c	2008-01-20 01:27:13.000000000 +0300
++++ ucarp-1.4-handlers/src/carp.c	2008-02-01 22:39:12.000000000 +0300
+@@ -58,14 +58,20 @@
+         logfile(LOG_INFO, _("Switching to state: INIT"));
+         break;
+     case BACKUP:
+-        logfile(LOG_WARNING, _("Switching to state: BACKUP"));
+         if ((sc->sc_state != INIT) || (neutral != 1)) {
+-            (void) spawn_handler(dev_desc_fd, downscript);
++            if (!spawn_handler(dev_desc_fd, downscript)) {
++                logfile(LOG_WARNING, _("%s failed; not switching to BACKUP"), downscript);
++                return;
++            }
+         }
++        logfile(LOG_WARNING, _("Switching to state: BACKUP"));
+         break;
+     case MASTER:
++        if (!spawn_handler(dev_desc_fd, upscript)) {
++            logfile(LOG_WARNING, _("%s failed; not switching to MASTER"), upscript);
++            return;
++        }
+         logfile(LOG_WARNING, _("Switching to state: MASTER"));
+-        (void) spawn_handler(dev_desc_fd, upscript);
+         gratuitous_arp(dev_desc_fd);        
+         break;
+     default:
+@@ -329,6 +335,10 @@
+     switch (sc->sc_state) {
+     case INIT:
+         carp_set_state(sc, BACKUP);
++        if (sc->sc_state != BACKUP) {
++            logfile(LOG_ERR, _("Can't swith to BACKUP state."));
++            abort();
++        }
+         carp_setrun(sc, 0);         
+         break;
+     case BACKUP:
+@@ -381,12 +391,14 @@
+         break;
+     case BACKUP:
+         carp_set_state(sc, MASTER);
+-        carp_send_ad(sc);
+-        /* Schedule a delayed ARP request to deal w/ some L3 switches */
+-        sc->sc_delayed_arp = 2;
++        if (sc->sc_state == MASTER) {
++            carp_send_ad(sc);
++            /* Schedule a delayed ARP request to deal w/ some L3 switches */
++            sc->sc_delayed_arp = 2;
+ #ifdef INET6
+-        carp_send_na(sc);
++            carp_send_na(sc);
+ #endif /* INET6 */
++        }
+         carp_setrun(sc, 0);
+         break;
+     }    
+@@ -570,9 +582,11 @@
+                 (timercmp(&sc_tv, &ch_tv, ==) &&
+                  iphead.ip_src.s_addr < srcip.s_addr)) {
+                 carp_set_state(&sc, BACKUP);
++                if (sc.sc_state == BACKUP) {
++                  logfile(LOG_WARNING, _("Preferred master advertised: "
++                                         "going back to BACKUP state"));
++                }
+                 carp_setrun(&sc, 0);
+-                logfile(LOG_WARNING, _("Preferred master advertised: "
+-                                       "going back to BACKUP state"));
+             }
+ 
+             /*
+@@ -751,6 +765,18 @@
+                 interface == NULL ? "-" : interface, strerror(errno));
+         return -1;
+     }
++
++    struct ip_mreqn req_add;
++    memset(&req_add, 0, sizeof (req_add));
++    req_add.imr_multiaddr.s_addr = inet_addr("224.0.0.18");
++    req_add.imr_address.s_addr = srcip.s_addr;
++    if (setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP,
++                  (char *) &req_add, sizeof (struct ip_mreqn)) < 0) {
++      logfile(LOG_ERR, "Can't do IP_ADD_MEMBERSHIP errno=%s (%d)",
++             strerror(errno), errno);
++      close(fd);
++      return -1;
++    }
+ #ifdef SIOCGIFFLAGS    
+     if (strlen(interface) >= sizeof iface.ifr_name) {
+         logfile(LOG_ERR, _("Interface name too long"));
+diff -ru --new-file ucarp-1.4-vanilla/src/spawn.c ucarp-1.4-handlers/src/spawn.c
+--- ucarp-1.4-vanilla/src/spawn.c	2008-01-20 01:25:58.000000000 +0300
++++ ucarp-1.4-handlers/src/spawn.c	2008-02-01 22:38:55.000000000 +0300
+@@ -12,7 +12,8 @@
+ 
+ int spawn_handler(const int dev_desc_fd, const char * const script)
+ {
+-    pid_t pid;
++    pid_t pid, w;
++    int status;
+     
+     if (script == NULL || *script == 0) {
+         return 0;
+@@ -32,7 +33,19 @@
+                 (xparam ? " " : ""), (xparam ? xparam : ""));
+ #ifdef HAVE_WAITPID
+ 	{
+-	    while (waitpid(pid, NULL, 0) == (pid_t) -1 && errno == EINTR);
++            do {
++                status = -1;
++                w = waitpid(pid, &status, WUNTRACED | WCONTINUED);
++                while ((w = waitpid(pid, &status, WUNTRACED | WCONTINUED)) ==
++                  (pid_t) -1 && errno == EINTR);
++		
++                if (WIFEXITED(status)) {
++                    return (WEXITSTATUS(status) == 0 ? 1 : 0);
++                }
++                else if (WIFSIGNALED(status)) {
++                    return 0;
++                }
++            } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+ 	}
+ #else
+         {
+@@ -51,5 +64,5 @@
+                 strerror(errno));
+         return -1;
+     }
+-    return 0;
++    return 1;
+ }
