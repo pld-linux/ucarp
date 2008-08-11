@@ -2,7 +2,7 @@ Summary:	Common Address Redundancy Protocol (CARP) for Unix
 Summary(pl.UTF-8):	CARP (Common Address Redundancy Protocol) dla Uniksa
 Name:		ucarp
 Version:	1.5
-Release:	1
+Release:	2
 License:	BSD
 Group:		Applications/Networking
 Source0:	ftp://ftp.ucarp.org/pub/ucarp/%{name}-%{version}.tar.gz
@@ -10,6 +10,7 @@ Source0:	ftp://ftp.ucarp.org/pub/ucarp/%{name}-%{version}.tar.gz
 URL:		http://www.ucarp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	libtool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -39,6 +40,7 @@ sieciowego między nadmiarowymi hostami.
 %setup -q 
 
 %build
+%{__libtoolize}
 %{__aclocal}
 %{__autoconf}
 %{__autoheader}
