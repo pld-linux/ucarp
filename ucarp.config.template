@@ -1,0 +1,28 @@
+# options for ucarp instance
+####
+# Available options (--daemonize is added by default, --addr= is generated 
+# from the name of this file) :
+#
+# --interface=<if> (-i <if>): bind interface <if>
+# --srcip=<ip> (-s <ip>): source (real) IP address of that host
+# --vhid=<id> (-v <id>): virtual IP identifier (1-255)
+# --pass=<pass> (-p <pass>): password
+# --passfile=<file> (-o <file>): read password from file
+# --preempt (-P): becomes a master as soon as possible
+# --neutral (-n): don't run downscript at start if backup
+# --help (-h): summary of command-line options
+# --advbase=<seconds> (-b <seconds>): advertisement frequency
+# --advskew=<skew> (-k <skew>): advertisement skew (0-255)
+# --upscript=<file> (-u <file>): run <file> to become a master
+# --downscript=<file> (-d <file>): run <file> to become a backup
+# --deadratio=<ratio> (-r <ratio>): ratio to consider a host as dead
+# --shutdown (-z): call shutdown script at exit
+# --ignoreifstate (-S): ignore interface state (down, no carrier)
+# --nomcast (-M): use broadcast (instead of multicast) advertisements
+# --facility=<facility> (-f): set syslog facility (default=daemon)
+# --xparam=<value> (-x): extra parameter to send to up/down scripts
+
+# make sure to specify at least --srcip, --vhid and --pass (or --passfile),
+# --upscript and --downscript
+
+#UCARP_OPTS="--upscript=/etc/ucarp/vip-up.sh --downscript=/etc/ucarp/vip-down.sh"

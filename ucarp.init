@@ -1,0 +1,169 @@
+#!/bin/sh
+#
+# ucarp		Start/stop the UCARP daemon.
+#
+# chkconfig:	2345 11 89
+#
+# description:	UCARP is Common Address Redundancy Protocol (CARP) \
+#		for Unix 
+#
+
+# Get service config
+[ -f /etc/sysconfig/ucarp ] && . /etc/sysconfig/ucarp
+
+CONFIG_VIRTUAL_IPS=$VIRTUAL_IPS
+
+[ -n "$2" ] && VIRTUAL_IPS="$2"
+
+# no virtual IPs. exit silently
+if [ -z "$VIRTUAL_IPS" ]; then
+   	case "$1" in
+	start|stop|restart|reload|force-reload)
+		exit 0
+		;;
+	esac
+fi
+
+# Source function library
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+if is_yes "${NETWORKING}"; then
+	if [ ! -f /var/lock/subsys/network -a "$1" != stop -a "$1" != status ]; then
+		msg_network_down UCARP
+		exit 1
+	fi
+else
+	exit 0
+fi
+
+# check if the virtual ip $1 s up
+vipup() {
+	local vip="$1"
+	local pidfile=/var/run/ucarp/$vip.pid
+	local pid=$(cat $pidfile 2>/dev/null)
+	kill -0 $pid 2>/dev/null
+	return $?
+}
+
+# check if all the configured virtual IPs are up
+vipsup() {
+	ret=0
+	for vip in $CONFIG_VIRTUAL_IPS; do
+		vipup $vip && continue
+		ret=1
+	done
+	return $ret
+}
+
+# check if any of the configured interfaces is up
+anyvipsup() {
+	ret=1
+	for vip in $CONFIG_VIRTUAL_IPS; do
+		vipup $vip && return 0
+	done
+	return $ret
+}
+
+start() {
+	# Check if the service is already running?
+	if ! vipsup; then
+		msg_starting "UCARP"; started
+		for vip in $VIRTUAL_IPS; do
+			config="/etc/ucarp/$vip.conf"
+			if [ ! -f "$config" ]; then
+				nls "Invalid virtual IP \`%s': missing config: %s" $vip "$config"
+				fail
+				RET=1
+			else	
+				UCARP_OPTS=""
+				. $config
+				show "Starting UCARP for virtual IP %s" "$vip"
+				if vipup $vip; then
+					started
+					continue
+				fi
+				# Needed for makepid work
+				RC_LOGGING=no
+				daemon --makepid --fork --pidfile /var/run/ucarp/$vip.pid \
+					/usr/sbin/ucarp --addr=${vip}  ${UCARP_OPTS}
+				RET=$?
+			fi
+			[ $RETVAL -eq 0 ] && RETVAL=$RET
+		done
+		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/ucarp
+	else
+		msg_already_running "UCARP"
+	fi
+}
+
+stop() {
+	if anyvipsup; then
+		# Stop daemons.
+		msg_stopping "UCARP"; started
+		for vip in $VIRTUAL_IPS; do
+			pidfile=/var/run/ucarp/$vip.pid
+			[ -f "$pidfile" ] || continue
+			pid=`cat "$pidfile"`
+			show "Stopping UCARP for virtual IP %s" "$vip"; busy
+			killproc --pidfile "$pidfile" || err=1
+			rm -f "$pidfile" >/dev/null 2>&1
+		done
+		anyvipsup || rm -f /var/lock/subsys/ucarp >/dev/null 2>&1
+	else
+		msg_not_running "UCARP"
+	fi
+}
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  reload|force-reload)
+	if vipsup; then
+		msg_reloading "UCARP"; started
+		for vip in $VIRTUAL_IPS; do
+			show "Reloading UCARP for virtual IP %s" "$vip"
+			killproc --pidfile ucarp/$vip.pid ucarp -HUP
+			[ $? -ne 0 -a $RETVAL -eq 0 ] && RETVAL=7
+		done
+	else
+		msg_not_running "UCARP"
+		exit 7
+	fi
+	;;
+  restart)
+	stop
+	sleep 1
+	start
+	exit $?
+	;;
+  status)
+	nls "Configured virtual IPs:"
+   	echo " $VIRTUAL_IPS"
+	nls "Currently active virtual IPs:"
+	for pidfile in /var/run/ucarp/*.pid; do
+		[ -f "$pidfile" ] || continue
+		vip=${pidfile#/var/run/ucarp/}
+		vip=${vip%.pid}
+		vipup $vip && echo -n " $vip($(cat $pidfile))"
+	done
+	echo ""
+	vipsup
+	exit $?
+	;;
+  *)
+	msg_usage "$0 {start|stop|restart|reload|force-reload|status}"
+	exit 3
+	;;
+esac
+
+exit $RETVAL

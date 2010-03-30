@@ -7,10 +7,14 @@ License:	BSD
 Group:		Applications/Networking
 Source0:	ftp://ftp.ucarp.org/pub/ucarp/%{name}-%{version}.tar.gz
 # Source0-md5:	391caa69fc17ffbc8a3543d8692021c9
+Source1:	%{name}.init
+Source2:	%{name}.sysconfig
+Source3:	%{name}.config.template
 URL:		http://www.ucarp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool
+BuildRequires:  libpcap-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -54,10 +58,35 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/{%{name},rc.d/init.d,sysconfig} $RPM_BUILD_ROOT/%{_varrun}/%{name}
+install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/%{name}
+install %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/%{name}
+install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/config.template
+install examples/linux/vip-down.sh $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/
+install examples/linux/vip-up.sh $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+/sbin/chkconfig --add ucarp
+%service ucarp restart "UCARP"
+
+%preun
+if [ "$1" = "0" ]; then
+        %service ucarp stop
+        /sbin/chkconfig --del ucarp
+fi
+
+
 %files
 %defattr(644,root,root,755)
-%doc ChangeLog README
+%{_sysconfdir}/sysconfig/%{name}
+%{_varrun}/%{name}
+%attr(755,root,root) %{_sysconfdir}/rc.d/init.d/%{name}
 %attr(755,root,root) %{_sbindir}/*
+%dir %{_sysconfdir}/%{name}
+%attr(750,root,root) %{_sysconfdir}/%{name}
+%attr(640,root,root) %{_sysconfdir}/%{name}/*
+%attr(750,root,root) %{_sysconfdir}/%{name}/vip-down.sh
+%attr(750,root,root) %{_sysconfdir}/%{name}/vip-up.sh
