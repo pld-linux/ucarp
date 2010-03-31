@@ -13,8 +13,9 @@ Source3:	%{name}.config.template
 URL:		http://www.ucarp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	fix:%files
+BuildRequires:	libpcap-devel
 BuildRequires:	libtool
-BuildRequires:  libpcap-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -41,7 +42,7 @@ operacyjnymi i brak potrzeby dedykowanego dodatkowego połączenia
 sieciowego między nadmiarowymi hostami.
 
 %prep
-%setup -q 
+%setup -q
 
 %build
 %{__libtoolize}
@@ -58,12 +59,12 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/{%{name},rc.d/init.d,sysconfig} $RPM_BUILD_ROOT/%{_varrun}/%{name}
-install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/init.d/%{name}
-install %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/%{name}
-install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/config.template
-install examples/linux/vip-down.sh $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/
-install examples/linux/vip-up.sh $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/%{name},/etc/{rc.d/init.d,sysconfig} $RPM_BUILD_ROOT%{_varrun}/%{name}
+install -p %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+cp -a %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+cp -a %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/config.template
+install -p examples/linux/vip-down.sh $RPM_BUILD_ROOT%{_sysconfdir}/%{name}
+install -p examples/linux/vip-up.sh $RPM_BUILD_ROOT%{_sysconfdir}/%{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -74,19 +75,19 @@ rm -rf $RPM_BUILD_ROOT
 
 %preun
 if [ "$1" = "0" ]; then
-        %service ucarp stop
-        /sbin/chkconfig --del ucarp
+	%service ucarp stop
+	/sbin/chkconfig --del ucarp
 fi
-
 
 %files
 %defattr(644,root,root,755)
-%{_sysconfdir}/sysconfig/%{name}
-%{_varrun}/%{name}
-%attr(755,root,root) %{_sysconfdir}/rc.d/init.d/%{name}
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
+%attr(754,root,root) /etc/rc.d/init.d/%{name}
 %attr(755,root,root) %{_sbindir}/*
+# XXX fix duplicate packaging
 %dir %{_sysconfdir}/%{name}
 %attr(750,root,root) %{_sysconfdir}/%{name}
 %attr(640,root,root) %{_sysconfdir}/%{name}/*
 %attr(750,root,root) %{_sysconfdir}/%{name}/vip-down.sh
 %attr(750,root,root) %{_sysconfdir}/%{name}/vip-up.sh
+%{_varrun}/%{name}
