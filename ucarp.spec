@@ -2,7 +2,7 @@ Summary:	Common Address Redundancy Protocol (CARP) for Unix
 Summary(pl.UTF-8):	CARP (Common Address Redundancy Protocol) dla Uniksa
 Name:		ucarp
 Version:	1.5.1
-Release:	3
+Release:	4
 License:	BSD
 Group:		Applications/Networking
 Source0:	ftp://ftp.ucarp.org/pub/ucarp/%{name}-%{version}.tar.gz
@@ -13,7 +13,6 @@ Source3:	%{name}.config.template
 URL:		http://www.ucarp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	fix:%files
 BuildRequires:	libpcap-devel
 BuildRequires:	libtool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -30,10 +29,11 @@ operating systems and no need for any dedicated extra network link
 between redundant hosts.
 
 %description -l pl.UTF-8
-UCARP pozwala kilku hostom na dzielenie wspólnych wirtualnych adresów
-IP w celu automatycznego przejmowania w przypadku awarii. Jest to
-przenośna implementacja w przestrzeni użytkownika bezpiecznego i
-wolnego od patentów protokołu CARP (Common Address Redundancy Protocol
+UCARP pozwala kilku hostom na dzielenie wspólnych wirtualnych
+adresów IP w celu automatycznego przejmowania w przypadku awarii.
+Jest to przenośna implementacja w przestrzeni użytkownika
+bezpiecznego i wolnego od patentów protokołu CARP (Common Address
+Redundancy Protocol
 - alternatywy OpenBSD dla VRRP).
 
 Silne punkty protokołu CARP to: bardzo mały narzut, kryptograficznie
@@ -59,7 +59,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/%{name},/etc/{rc.d/init.d,sysconfig} $RPM_BUILD_ROOT%{_varrun}/%{name}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/%{name} $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} $RPM_BUILD_ROOT%{_varrun}/%{name}
 install -p %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 cp -a %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 cp -a %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/config.template
@@ -84,10 +84,8 @@ fi
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %attr(755,root,root) %{_sbindir}/*
-# XXX fix duplicate packaging
-%dir %{_sysconfdir}/%{name}
-%attr(750,root,root) %{_sysconfdir}/%{name}
-%attr(640,root,root) %{_sysconfdir}/%{name}/*
+%{_sysconfdir}/%{name}
+%{_sysconfdir}/%{name}/*
 %attr(750,root,root) %{_sysconfdir}/%{name}/vip-down.sh
 %attr(750,root,root) %{_sysconfdir}/%{name}/vip-up.sh
 %{_varrun}/%{name}
