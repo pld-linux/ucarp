@@ -13,6 +13,7 @@ Source3:	%{name}.config.template
 URL:		http://www.ucarp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	gettext-devel
 BuildRequires:	libpcap-devel
 BuildRequires:	libtool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -29,11 +30,10 @@ operating systems and no need for any dedicated extra network link
 between redundant hosts.
 
 %description -l pl.UTF-8
-UCARP pozwala kilku hostom na dzielenie wspólnych wirtualnych
-adresów IP w celu automatycznego przejmowania w przypadku awarii.
-Jest to przenośna implementacja w przestrzeni użytkownika
-bezpiecznego i wolnego od patentów protokołu CARP (Common Address
-Redundancy Protocol
+UCARP pozwala kilku hostom na dzielenie wspólnych wirtualnych adresów
+IP w celu automatycznego przejmowania w przypadku awarii. Jest to
+przenośna implementacja w przestrzeni użytkownika bezpiecznego i
+wolnego od patentów protokołu CARP (Common Address Redundancy Protocol
 - alternatywy OpenBSD dla VRRP).
 
 Silne punkty protokołu CARP to: bardzo mały narzut, kryptograficznie
