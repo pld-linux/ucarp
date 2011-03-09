@@ -2,7 +2,7 @@ Summary:	Common Address Redundancy Protocol (CARP) for Unix
 Summary(pl.UTF-8):	CARP (Common Address Redundancy Protocol) dla Uniksa
 Name:		ucarp
 Version:	1.5.2
-Release:	1
+Release:	2
 License:	BSD
 Group:		Applications/Networking
 Source0:	ftp://ftp.ucarp.org/pub/ucarp/%{name}-%{version}.tar.gz
@@ -45,6 +45,7 @@ sieciowego między nadmiarowymi hostami.
 %setup -q
 
 %build
+%{__gettextize}
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
@@ -84,8 +85,8 @@ fi
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %attr(755,root,root) %{_sbindir}/*
-%{_sysconfdir}/%{name}
-%{_sysconfdir}/%{name}/*
+%dir %{_sysconfdir}/%{name}
+%{_sysconfdir}/%{name}/config.template
 %attr(750,root,root) %{_sysconfdir}/%{name}/vip-down.sh
 %attr(750,root,root) %{_sysconfdir}/%{name}/vip-up.sh
 %{_varrun}/%{name}
