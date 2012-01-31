@@ -10,6 +10,7 @@ Source0:	ftp://ftp.ucarp.org/pub/ucarp/%{name}-%{version}.tar.gz
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Source3:	%{name}.config.template
+Source4:	%{name}.tmpfiles
 URL:		http://www.ucarp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -56,16 +57,21 @@ sieciowego między nadmiarowymi hostami.
 
 %install
 rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/%{name} \
+	$RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
+	$RPM_BUILD_ROOT%{_varrun}/%{name} \
+	$RPM_BUILD_ROOT/usr/lib/tmpfiles.d
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/%{name} $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} $RPM_BUILD_ROOT%{_varrun}/%{name}
 install -p %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 cp -a %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 cp -a %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/config.template
 install -p examples/linux/vip-down.sh $RPM_BUILD_ROOT%{_sysconfdir}/%{name}
 install -p examples/linux/vip-up.sh $RPM_BUILD_ROOT%{_sysconfdir}/%{name}
+
+install %{SOURCE4} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -89,4 +95,5 @@ fi
 %{_sysconfdir}/%{name}/config.template
 %attr(750,root,root) %{_sysconfdir}/%{name}/vip-down.sh
 %attr(750,root,root) %{_sysconfdir}/%{name}/vip-up.sh
+/usr/lib/tmpfiles.d/%{name}.conf
 %{_varrun}/%{name}
