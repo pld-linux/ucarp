@@ -1,0 +1,21 @@
+#!/bin/sh
+
+destunitdir=${1:-/tmp}
+
+# Do nothing if target is disabled
+[ -e /etc/systemd/system/multi-user.target.wants/ucarp.target ] || exit 0
+
+[ -f /etc/sysconfig/ucarp ] && . /etc/sysconfig/ucarp
+
+if [ -d $destunitdir/ucarp.target.wants ]; then
+	rm -f $destunitdir/ucarp.target.wants/ucarp@*.service
+else
+	mkdir -p $destunitdir/ucarp.target.wants
+fi
+
+for ip in $VIRTUAL_IPS; do
+	[ -L $destunitdir/ucarp.target.wants/ucarp@$ip.service ] && \
+		continue
+	ln -s /lib/systemd/system/ucarp@.service \
+		$destunitdir/ucarp.target.wants/ucarp@$ip.service
+done

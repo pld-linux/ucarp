@@ -1,0 +1,12 @@
+[Unit]
+Description=CARP ip %I
+Requires=ucarp.target
+After=ucarp.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/ucarp/%i.conf
+ExecStart=/usr/sbin/ucarp --addr %i $UCARP_OPTS
+
+[Install]
+WantedBy=ucarp.target
