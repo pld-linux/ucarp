@@ -116,8 +116,8 @@ fi
 %{systemdunitdir}/%{name}@.service
 %attr(755,root,root) %{_sbindir}/*
 %attr(770,root,root) %dir %{_sysconfdir}/%{name}
-%{_sysconfdir}/%{name}/config.template
-%attr(750,root,root) %{_sysconfdir}/%{name}/vip-down.sh
-%attr(750,root,root) %{_sysconfdir}/%{name}/vip-up.sh
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/config.template
+%config(noreplace) %verify(not md5 mtime size) %attr(750,root,root) %{_sysconfdir}/%{name}/vip-down.sh
+%config(noreplace) %verify(not md5 mtime size) %attr(750,root,root) %{_sysconfdir}/%{name}/vip-up.sh
 /usr/lib/tmpfiles.d/%{name}.conf
 %{_varrun}/%{name}
