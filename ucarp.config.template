@@ -25,4 +25,5 @@
 # make sure to specify at least --srcip, --vhid and --pass (or --passfile),
 # --upscript and --downscript
 
+#VIP=SOMEIP     # if not set, instance name is used
 #UCARP_OPTS="--upscript=/etc/ucarp/vip-up.sh --downscript=/etc/ucarp/vip-down.sh"

@@ -5,8 +5,9 @@ After=ucarp.target
 
 [Service]
 Type=simple
+Environment="VIP=%i"
 EnvironmentFile=/etc/ucarp/%i.conf
-ExecStart=/usr/sbin/ucarp --addr %i $UCARP_OPTS
+ExecStart=/usr/sbin/ucarp --addr ${VIP} $UCARP_OPTS
 
 [Install]
 WantedBy=ucarp.target
