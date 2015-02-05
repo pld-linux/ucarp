@@ -5,6 +5,7 @@ After=ucarp.target
 
 [Service]
 Type=simple
+Restart=on-failure
 Environment="VIP=%i"
 EnvironmentFile=/etc/ucarp/%i.conf
 ExecStart=/usr/sbin/ucarp --addr ${VIP} $UCARP_OPTS
